@@ -1,0 +1,185 @@
+---
+title: "Evidencia 2"
+author: "Miguel Emiliano Gonzalez Gauna,Karime Monzerrat Muñoz Franco A01638587,Erik Ernesto Ocegueda Sambrano A01639729,Francisco Javier Chávez Ochoa A01641644"
+date: '2022-05-04'
+output: html_document
+---
+##Evidencia 2
+
+#A finales de 2019 la ciudad de Wuhan, en la provincia de Hubei (una ciudad de China con más de 11 millones de habitantes), se convirtió en el centro de una epidemia de neumonía de causa desconocida con implicaciones globales.
+
+#Se sabe que las pruebas serológicas son una herramienta muy útil para confirmar la infección por un patógeno en la población y, combinadas con datos epidemiológicos y clínicos, permiten estimar la gravedad y la transmisibilidad del patógeno e identificar los grupos de población que han sido infectados, así como aquellos que siguen siendo susceptibles.  Por ello, cada vez más requerimos datos moleculares como las secuencias de ácidos nucleicos de los virus para conocer su origen y potencialidad epidemiológica.
+
+#Nosotros analizaremos 20 diferntes variantes de covid y demostraremos su relacion.
+
+```{r}
+virus <- c(  "JX869059", "AY508724", "MN908947", "AY390556", "AY278489", "MN985325","AY485277","MT292571", "NC_019843","NC_045512.2", "MZ344997", "MW598419", "OL672836", "ON373214", "MW453103", "MW850639", "MW966601", "MZ169911", "OM685375", "OM958567" )
+paisOrigen <-
+  c("JX869059-MedioOriente","AY508724-Australia","MN908947-China-Wuhan","AY390556-China-Guangzhou","AY278489-Singapore","MN985325-USA-Washington","AY485277-China-Guangdong","MT292571-España","NC_019843-MedioOriente","NC_045512.2-China-Wuhan","MZ344997-Inglaterra","MW598419-Ghana","OL672836-Belgica","ON373214-USA-Pennsylvania","MW453103-USA-California","MW850639-USA-Virginia","MW966601-USA-NJ","MZ169911-Brasil","OM685375-USA-NY","OM958567-USA-NY")
+```
+
+```{r}
+library(Biostrings)
+library(seqinr) 
+library(adegenet) 
+library(ape) 
+library(ggtree)
+library(DECIPHER)
+library(viridis)
+library(ggplot2)
+```
+
+```{r}
+
+virus_sequences <- read.GenBank(virus)
+str(virus_sequences)
+attributes(virus_sequences)
+names(virus_sequences)
+attr(virus_sequences,"species")
+write.dna(virus_sequences,  file ="virus_seqs.fasta", format = "fasta", append =
+            FALSE, nbcol = 6, colsep = " ", colw = 10)
+
+```
+
+```{r}
+
+library("seqinr")
+library("ape")
+library("Biostrings")
+virus_seq_not_align <-readDNAStringSet("virus_seqs.fasta", format = "fasta")
+virus_seq_not_align
+```
+
+```{r}
+library(DECIPHER)
+virus_seq_not_align <- OrientNucleotides(virus_seq_not_align)
+
+virus_seq_align <- AlignSeqs(virus_seq_not_align)
+
+names(virus_seq_align)<-paste(paisOrigen)
+```
+
+```{r}
+i = 0
+while (i < length(virus_seq_not_align)) {
+  i = i + 1
+  print("Nombre de la variante")
+  virus[i]
+  print(virus_seq_not_align[i])
+  print("Porcentage de contenido GC")
+  print(paste(round(letterFrequency(virus_seq_not_align[[i]], "GC", as.prob = TRUE),4) * 100,"%"))
+}
+```
+#Analizando la distribución de las bases que tiene cada variante, podemos observar que son muy similares entre sí, pues la diferencia entre las mismas bases de cada variante, tiene una diferencia máxima de entre un 0.3% y un 2%  con respecto al total de bases que tiene cada variante, esto quiere decir que las variantes son similares entre un 92% a un 98.2% a las otras variantes. Otra manera de analizar lo anterior es comparando bases iguales, pero en vez de hacerlo con respecto al total de bases que tiene cada variante, lo podemos realizar, con respecto a las mismas bases, por ejemplo si tenemos que una variante tiene un 26% de base A, y la otra tiene un 27% de base A, podemos decir que son un 96% parecidas las variantes, pues 26*100/27 es aproximadamente 96, y como en las demás bases se tiene casi la misma distribución de porcentajes, podemos afirmar que las variantes se parecen entre un 92% hasta un 96%.
+```{r}
+dnaVal <- function(i) {
+  x <-
+    round(alphabetFrequency(
+      virus_seq_not_align[[i]],
+      baseOnly = TRUE,
+      as.prob = FALSE
+    ),
+    4)
+  return(x)
+}
+w <- c()
+i = 0
+while (i < length(virus_seq_not_align)) {
+  i = i + 1
+  val <- c(dnaVal(i))
+  j = 0
+  while (j < 4) {
+    j = j + 1
+    k <- val[[j]]
+    w <- append(w, k)
+  }
+}
+vec1 <- w[1:4]
+vec2 <- w[5:8]
+vec3 <- w[9:12]
+vec4 <- w[13:16]
+vec5 <- w[17:20]
+vec6 <- w[21:24]
+vec7 <- w[25:28]
+vec8 <- w[29:32]
+vec9 <- w[33:36]
+vec10 <- w[37:40]
+vec11 <- w[41:44]
+vec12 <- w[45:48]
+vec13 <- w[49:52]
+vec14 <- w[53:56]
+vec15 <- w[57:60]
+vec16 <- w[61:64]
+vec17 <- w[65:68]
+vec18 <- w[69:72]
+vec19 <- w[73:76]
+vec20 <- w[77:80]
+matriz <-
+  rbind(
+    vec1,
+    vec2,
+    vec3,
+    vec4,
+    vec5,
+    vec6,
+    vec7,
+    vec8,
+    vec9,
+    vec10,
+    vec11,
+    vec12,
+    vec13,
+    vec14,
+    vec15,
+    vec16,
+    vec17,
+    vec18,
+    vec19,
+    vec20
+  )
+df <- data.frame(matriz)
+df$new<-paisOrigen
+colnames(df)<-c("A","C","G","t","Virus")
+```
+
+```{r}
+ggplot(data = df, aes(color = Virus, size = Virus)) + geom_point(aes(x = "A", y = A), alpha = 0.2) + geom_point(aes(x ="C", y = C),alpha = 0.2) + geom_point(aes(x = "G", y = G),alpha = 0.2) +
+  geom_point(aes(x = "T", y = t),alpha = 0.2)+labs(x = "ACGT comparacion",y="cuenta")
+```
+#En la gráfica podemos observar que las cantidades de bases son muy similares entre cada variante,en algunos casos son tan parecidas, que no se puede distinguir la diferencia entre un punto y el otro. Usamos colores similares para las variantes que tienen mucha similitud entre ellas, y podemos ver que hay tres grupos muy marcados. Sin embargo la diferencia entre estos grupos, no es mucha, pues todos estos grupos están en un rango de entre 300 a 1000 de diferencia entre las cantidades de bases, esto en porcentaje representa un diferencia de un 3.75%, hasta un 8% de diferencia, lo cual concuerda con el análisis realizado previamente.
+```{r}
+BrowseSeqs(virus_seq_align, highlight=0)
+writeXStringSet(virus_seq_align, file="virus_seq_align.fasta")
+virus_aligned <- read.alignment("virus_seq_align.fasta", format = "fasta")
+matriz_distancia <- dist.alignment(virus_aligned, matrix = "similarity")
+```
+
+```{r}
+temp <- as.data.frame(as.matrix(matriz_distancia))
+table.paint(temp, cleg=0, clabel.row=.5, clabel.col=.5) + scale_color_viridis()
+virus_tree <- nj(matriz_distancia)
+class(virus_tree) 
+virus_tree <- ladderize(virus_tree)
+```
+#Esta gráfica nos permite comparar las diversas variantes de una manera más visual, pues se usa un cuadrito blanco si la variantes son muy similares entre sí, un cuadro gris en el caso que sean mas o menos parecidas, y un cuadro negro si existe una diferencia considerable entre las variantes. Estas gráficas coinciden con la gráfica anterior, pues muestra que las variantes MW453103, MW850639, MW966601, MZ169911, OM685375, OM958567, son muy similares, pues en las intersecciones hay cuadros blancos, y en la gráfica anterior, salen agrupadas estas variantes, pues tenían una cantidad de bases muy similares.
+```{r}
+plot(virus_tree, cex = 0.6)
+title("A Novel Coronavirus from Patients with Pneumonia in China, 2019")
+ggtree(virus_tree, layout="slanted") + geom_tiplab()
+ggtree(virus_tree, branch.length='none', layout='circular')+ geom_tiplab()
+```
+#Los árboles filogenéticos nos permiten concluir, que las variantes que vienen de los mismos países, son muy similares entre sí, y esto tiene mucho sentido pues existe más probabilidad de que se genere una variante nueva mientras más contagios existan. También nos permite analizar que las variantes  MW453103, MW850639, MW966601, MZ169911 son de las que derivan las otras variantes, por otro lado las variantes AY508724, AY390556, AY278489, AY485277, NC019843 y JX869059 son las que menos similitudes comparten con las variantes previamente mencionadas.
+```{r}
+
+if (!require("BiocManager", quietly = TRUE))
+  install.packages("BiocManager")
+
+BiocManager::install("ggmsa")
+library("ggmsa")
+ggmsa(virus_seq_not_align, 320, 360, color = "Chemistry_AA")
+```
+#Esta gráfica nos permite analizar las bases de una manera más visual, para que sea más sencillo comparar las variantes descendientes del Coronavirus y de esta manera  ver que tan parecidas son.
+
+#Link del video:
+
+https://youtu.be/nZjUXPcgAqI
